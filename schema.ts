@@ -31,7 +31,7 @@ export interface paths {
      */
     put: operations["replace_composition"];
   };
-  "/composition/{parameter}/reset": {
+  [path: `/composition/${string}/reset`]: {
     /**
      * Reset a parameter in the composition to its default value. 
      * @description This resets a parameter on the main composition to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -44,7 +44,7 @@ export interface paths {
       };
     };
   };
-  "/composition/columns/{column-index}": {
+  [path: `/composition/columns/${number}`]: {
     /**
      * Retrieve column properties by index 
      * @description Returns a single column
@@ -62,7 +62,7 @@ export interface paths {
       };
     };
   };
-  "/composition/columns/{column-index}/{parameter}/reset": {
+  [path: `/composition/columns/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a column to its default value. 
      * @description This resets a parameter on the indexed column to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -77,7 +77,7 @@ export interface paths {
       };
     };
   };
-  "/composition/columns/{column-index}/connect": {
+  [path: `/composition/columns/${number}/connect`]: {
     /**
      * Connect the column by index 
      * @description Connect the column, possibly activating it
@@ -90,7 +90,7 @@ export interface paths {
       };
     };
   };
-  "/composition/columns/by-id/{column-id}": {
+  [path: `/composition/columns/by-id/${number}`]: {
     /**
      * Retrieve column properties by id 
      * @description Returns a single column
@@ -108,7 +108,7 @@ export interface paths {
       };
     };
   };
-  "/composition/columns/by-id/{column-id}/{parameter}/reset": {
+  [path: `/composition/columns/by-id/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a column to its default value. 
      * @description This resets a parameter on the indexed column to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -123,7 +123,7 @@ export interface paths {
       };
     };
   };
-  "/composition/columns/by-id/{column-id}/connect": {
+  [path: `/composition/columns/by-id/${number}/connect`]: {
     /**
      * Connect the column by id 
      * @description Connect the column, possibly activating it
@@ -136,7 +136,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}": {
+  [path: `/composition/layers/${number}`]: {
     /**
      * Retrieve layer properties and clip info by index 
      * @description Returns a single layer and all of its clips
@@ -166,7 +166,7 @@ export interface paths {
      */
     put: operations["replace_selected_layer"];
   };
-  "/composition/layers/{layer-index}/{parameter}/reset": {
+  [path: `/composition/layers/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a layer to its default value. 
      * @description This resets a parameter on the indexed layer to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -181,7 +181,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/selected/{parameter}/reset": {
+  [path: `/composition/layers/selected/${string}/reset`]: {
     /**
      * Reset a parameter in the selected layer to its default value. 
      * @description This resets a parameter on the selected layer to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -194,7 +194,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}/select": {
+  [path: `/composition/layers/${number}/select`]: {
     /**
      * Select the layer by index 
      * @description Select the layer at the given index
@@ -207,7 +207,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}/clear": {
+  [path: `/composition/layers/${number}/clear`]: {
     /**
      * Disconnects any playing clips in the layer by index 
      * @description Disconnects any playing clips in the layer by index
@@ -227,7 +227,7 @@ export interface paths {
      */
     post: operations["selected_layer_clear"];
   };
-  "/composition/layers/{layer-index}/clearclips": {
+  [path: `/composition/layers/${number}/clearclips`]: {
     /**
      * Clears all clips in the layer by index 
      * @description Clears all clips in the layer by index, removing all tracks and settings from the clips
@@ -247,7 +247,7 @@ export interface paths {
      */
     post: operations["selected_layer_clear_clips"];
   };
-  "/composition/layers/by-id/{layer-id}": {
+  [path: `/composition/layers/by-id/${number}`]: {
     /**
      * Retrieve layer properties and clip info by id 
      * @description Returns a single layer and all of its clips
@@ -265,7 +265,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/by-id/{layer-id}/{parameter}/reset": {
+  [path: `/composition/layers/by-id/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a layer to its default value. 
      * @description This resets a parameter on the indexed layer to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -280,7 +280,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/by-id/{layer-id}/select": {
+  [path: `/composition/layers/by-id/${number}/select`]: {
     /**
      * Select the layer by id 
      * @description Select the layer with the given id
@@ -293,7 +293,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/by-id/{layer-id}/clear": {
+  [path: `/composition/layers/by-id/${number}/clear`]: {
     /**
      * Disconnects any playing clips in the layer by id 
      * @description Disconnects any playing clips in the layer by id
@@ -306,7 +306,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/by-id/{layer-id}/clearclips": {
+  [path: `/composition/layers/by-id/${number}/clearclips`]: {
     /**
      * Clears all clips in the layer by id 
      * @description Clears all clips in the layer by id, removing all tracks and settings from the clips
@@ -319,7 +319,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layergroups/{layergroup-index}": {
+  [path: `/composition/layergroups/${number}`]: {
     /**
      * Retrieve layer group properties and layer info by index 
      * @description Returns a single layer group and all of its layers
@@ -349,7 +349,7 @@ export interface paths {
      */
     put: operations["replace_selected_layergroup"];
   };
-  "/composition/layergroups/{layergroup-index}/{parameter}/reset": {
+  [path: `/composition/layergroups/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a layer group to its default value. 
      * @description This resets a parameter on the indexed layer group to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -364,7 +364,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layergroups/selected/{parameter}/reset": {
+  [path: `/composition/layergroups/selected/${string}/reset`]: {
     /**
      * Reset a parameter in the selected layer group to its default value. 
      * @description This resets a parameter on the selected layer group to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -377,7 +377,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layergroupss/{layergroup-index}/select": {
+  [path: `/composition/layergroupss/${number}/select`]: {
     /**
      * Select the layer group by index 
      * @description Select the layer group at the given index
@@ -390,7 +390,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layergroups/by-id/{layergroup-id}": {
+  [path: `/composition/layergroups/by-id/${number}`]: {
     /**
      * Retrieve layer group properties and layer info by id 
      * @description Returns a single layer group and all of its layers
@@ -408,7 +408,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layergroups/by-id/{layergroup-id}/{parameter}/reset": {
+  [path: `/composition/layergroups/by-id/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a layer group to its default value. 
      * @description This resets a parameter on the indexed layer group to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -423,7 +423,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layergroups/by-id/{layergroup-id}/select": {
+  [path: `/composition/layergroups/by-id/${number}/select`]: {
     /**
      * Select the layer group by id 
      * @description Select the layer group with the given id
@@ -436,7 +436,7 @@ export interface paths {
       };
     };
   };
-  "/composition/decks/{deck-index}": {
+  [path: `/composition/decks/${number}`]: {
     /**
      * Retrieve deck properties by index 
      * @description Returns a single deck
@@ -454,7 +454,7 @@ export interface paths {
       };
     };
   };
-  "/composition/decks/{deck-index}/{parameter}/reset": {
+  [path: `/composition/decks/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a deck to its default value. 
      * @description This resets a parameter on the indexed deck to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -469,7 +469,7 @@ export interface paths {
       };
     };
   };
-  "/composition/decks/{deck-index}/select": {
+  [path: `/composition/decks/${number}/select`]: {
     /**
      * Select the deck by index 
      * @description Select the deck at the given index
@@ -482,7 +482,7 @@ export interface paths {
       };
     };
   };
-  "/composition/decks/by-id/{deck-id}": {
+  [path: `/composition/decks/by-id/${number}`]: {
     /**
      * Retrieve deck properties by id 
      * @description Returns a single deck
@@ -500,7 +500,7 @@ export interface paths {
       };
     };
   };
-  "/composition/decks/by-id/{deck-id}/{parameter}/reset": {
+  [path: `/composition/decks/by-id/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a deck to its default value. 
      * @description This resets a parameter on the indexed deck to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -515,7 +515,7 @@ export interface paths {
       };
     };
   };
-  "/composition/decks/by-id/{deck-id}/select": {
+  [path: `/composition/decks/by-id/${number}/select`]: {
     /**
      * Select the deck by id 
      * @description Select the deck with the given id
@@ -528,7 +528,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}": {
+  [path: `/composition/layers/${number}/clips/${number}`]: {
     /**
      * Retrieve a clip by its position in the clip grid 
      * @description Retrieve all clip information and associated effects
@@ -560,7 +560,7 @@ export interface paths {
      */
     put: operations["replace_selected_clip"];
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/{parameter}/reset": {
+  [path: `/composition/layers/${number}/clips/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a clip to its default value. 
      * @description This resets a parameter on the indexed clip to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -577,7 +577,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/selected/{parameter}/reset": {
+  [path: `/composition/clips/selected/${string}/reset`]: {
     /**
      * Reset a parameter in the selected clip to its default value. 
      * @description This resets a parameter on the selected clip to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -590,7 +590,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/select": {
+  [path: `/composition/layers/${number}/clips/${number}/select`]: {
     /**
      * Select the clip by its position in the clip grid 
      * @description Select the clip
@@ -605,7 +605,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/connect": {
+  [path: `/composition/layers/${number}/clips/${number}/connect`]: {
     /**
      * Connect the clip by its position in the clip grid 
      * @description Connect the clip, possibly activating it
@@ -627,7 +627,7 @@ export interface paths {
      */
     post: operations["selected_clip_connect"];
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/open": {
+  [path: `/composition/layers/${number}/clips/${number}/open`]: {
     /**
      * Loads a file or opens a source into a clip by its position in the clip grid 
      * @description Loads a file or opens a source into a clip, will retain settings as much as possible
@@ -642,7 +642,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/openfile": {
+  [path: `/composition/layers/${number}/clips/${number}/openfile`]: {
     /**
      * Loads file into clip by its position in the clip grid 
      * @deprecated 
@@ -673,7 +673,7 @@ export interface paths {
      */
     post: operations["selected_clip_openfile"];
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/clear": {
+  [path: `/composition/layers/${number}/clips/${number}/clear`]: {
     /**
      * Clears the clip by its position in the clip grid 
      * @description Clears the clip, removing all tracks and settings
@@ -695,7 +695,7 @@ export interface paths {
      */
     post: operations["selected_clip_clear"];
   };
-  "/composition/clips/by-id/{clip-id}": {
+  [path: `/composition/clips/by-id/${number}`]: {
     /**
      * Retrieve a clip by id 
      * @description Retrieve all clip information and associated effects
@@ -713,7 +713,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/{clip-id}/{parameter}/reset": {
+  [path: `/composition/clips/${number}/${string}/reset`]: {
     /**
      * Reset a parameter in a clip to its default value. 
      * @description This resets a parameter on the indexed clip to default. If a JSON body is given and 'resetanimation' is set to true, animations are also reset.
@@ -728,7 +728,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/by-id/{clip-id}/select": {
+  [path: `/composition/clips/by-id/${number}/select`]: {
     /**
      * Select the clip by id 
      * @description Select the clip
@@ -741,7 +741,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/by-id/{clip-id}/connect": {
+  [path: `/composition/clips/by-id/${number}/connect`]: {
     /**
      * Connect the clip by id 
      * @description Connect the clip, possibly activating it
@@ -754,7 +754,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/by-id/{clip-id}/open": {
+  [path: `/composition/clips/by-id/${number}/open`]: {
     /**
      * Loads a file or opens a source into the selected clip 
      * @description Loads a file or opens a source into a clip, will retain settings as much as possible
@@ -767,7 +767,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/by-id/{clip-id}/openfile": {
+  [path: `/composition/clips/by-id/${number}/openfile`]: {
     /**
      * Loads file into clip with the given unique identifier 
      * @deprecated 
@@ -781,7 +781,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/by-id/{clip-id}/clear": {
+  [path: `/composition/clips/by-id/${number}/clear`]: {
     /**
      * Clears the clip with the given unique id 
      * @description Clears the clip, removing all tracks and settings
@@ -794,7 +794,7 @@ export interface paths {
       };
     };
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/thumbnail": {
+  [path: `/composition/layers/${number}/clips/${number}/thumbnail`]: {
     /**
      * Retrieve the latest thumbnail belonging to the specified clip 
      * @description Finds the clip at the given position in the grid and retrieves the latest thumbnail
@@ -816,7 +816,7 @@ export interface paths {
      */
     get: operations["list_selected_clip_thumbnail"];
   };
-  "/composition/layers/{layer-index}/clips/{clip-index}/thumbnail/{last-updated}": {
+  [path: `/composition/layers/${number}/clips/${number}/thumbnail/${number}`]: {
     /**
      * Retrieve the latest thumbnail belonging to the specified clip 
      * @description Finds the clip at the given position in the grid and retrieves the thumbnail if the thumbnail was last updated at the given timestamp
@@ -833,7 +833,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/selected/thumbnail/{last-updated}": {
+  [path: `/composition/clips/selected/thumbnail/${number}`]: {
     /**
      * Retrieve the latest thumbnail belonging to the selected clip 
      * @description Finds the selected clip and retrieves the thumbnail if the thumbnail was last updated at the given timestamp
@@ -846,7 +846,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/by-id/{clip-id}/thumbnail": {
+  [path: `/composition/clips/by-id/${number}/thumbnail`]: {
     /**
      * Retrieve the latest thumbnail belonging to the specified clip 
      * @description Finds the clip with the given unique id and retrieves the latest thumbnail
@@ -859,7 +859,7 @@ export interface paths {
       };
     };
   };
-  "/composition/clips/by-id/{clip-id}/thumbnail/{last-updated}": {
+  [path: `/composition/clips/by-id/${number}/thumbnail/${number}`]: {
     /**
      * Retrieve the latest thumbnail belonging to the specified clip 
      * @description Finds the clip with the given unique id and retrieves the thumbnail if the thumbnail was last updated at the given timestamp
@@ -881,7 +881,7 @@ export interface paths {
      */
     get: operations["list_dummy_thumbnail"];
   };
-  "/composition/effects/by-id/{effect-id}": {
+  [path: `/composition/effects/by-id/${number}`]: {
     /**
      * Retrieve effect properties given their unique identifier 
      * @description Finds the effect in any clip belonging to the composition
