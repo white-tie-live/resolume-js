@@ -1,0 +1,21 @@
+{
+  "name": "resolume",
+  "version": "0.1.0",
+  "description": "A TypeScript interface for Resolume Arena/Avenue's REST API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rest",
+    "vj",
+    "arena",
+    "resolume",
+    "avenue"
+  ],
+  "author": "Allen Ellis",
+  "license": "ISC",
+  "dependencies": {
+    "openapi-typescript": "^6.1.0"
+  }
+}

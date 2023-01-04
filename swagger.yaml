@@ -1,0 +1,3077 @@
+openapi: 3.0.1
+info:
+  title: Arena & Avenue REST API
+  description:  This is the API reference for the Resolume Arena & Avenue REST API. To use this API, start Resolume Arena or Avenue and enable the
+                server under the 'Webserver' heading in the preferences.
+  contact:
+    email: support@resolume.com
+  version: 0.0.1
+servers:
+- url: /api/v1
+tags:
+- name: api
+  description: Retrieve information about the API itself
+- name: sources
+  description: Retrieve information on the available sources
+- name: composition
+  description: Retrieve and update all composition properties
+- name: column
+  description: Retrieve and update column properties
+- name: layer
+  description: Retrieve and update layer properties and the clips they contain
+- name: layergroup
+  description: Retrieve and update layer group properties and the layers they contain
+- name: deck
+  description: Retrieve and update deck properties
+- name: clip
+  description: Retrieve and update properties for clips and their effects
+paths:
+  /product:
+    get:
+      tags:
+      - api
+      summary: Retrieve product information
+      description: This contains the product name and version information
+      operationId: get_product
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductInfo'
+  /sources:
+    get:
+      tags:
+      - sources
+      summary: Retrieve available sources for clips
+      description: Retrieve all sources available to generate clips
+      operationId: get_sources
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sources'
+  /composition:
+    get:
+      tags:
+      - composition
+      summary: Retrieve the complete composition
+      description: This contains the composition properties, all the decks, layers
+        and clips
+      operationId: list_composition
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Composition'
+    put:
+      tags:
+      - composition
+      summary: Update the complete composition
+      description: This allows for updating all parameters in a composition, its decks,
+        layers and clips
+      operationId: replace_composition
+      requestBody:
+        description: The updated composition properties, with possible decks, layers
+          and/or clips
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Composition'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+  /composition/{parameter}/reset:
+    parameters:
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - composition
+      summary: Reset a parameter in the composition to its default value.
+      description: This resets a parameter on the main composition to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_composition_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given parameter does not exist
+          content: {}
+  /composition/columns/{column-index}:
+    parameters:
+    - name: column-index
+      in: path
+      description: Column index to use (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - column
+      summary: Retrieve column properties by index
+      description: Returns a single column
+      operationId: get_column
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Column'
+        404:
+          description: The requested column does not exist
+          content: {}
+    put:
+      tags:
+      - column
+      summary: Update specific column by index
+      description: Update a single column
+      operationId: replace_column
+      requestBody:
+        description: The updated column properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Column'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested column or parameter does not exist
+          content: {}
+  /composition/columns/{column-index}/{parameter}/reset:
+    parameters:
+    - name: column-index
+      in: path
+      description: Column index to reset parameter on (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - column
+      summary: Reset a parameter in a column to its default value.
+      description: This resets a parameter on the indexed column to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_column_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given column or parameter does not exist
+          content: {}
+  /composition/columns/{column-index}/connect:
+    parameters:
+    - name: column-index
+      in: path
+      description: Column index to connect (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - column
+      summary: Connect the column by index
+      description: Connect the column, possibly activating it
+      operationId: column_connect
+      requestBody:
+        description: Whether to connect the column. This is analogous to whether the mouse is
+          pressed down on the column. If omitted, true and false are both send - as if a short
+          click was generated
+        content:
+          application/json:
+            schema:
+              type: boolean
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested column does not exist
+          content: {}
+  /composition/columns/by-id/{column-id}:
+    parameters:
+    - name: column-id
+      in: path
+      description: The unique column id
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - column
+      summary: Retrieve column properties by id
+      description: Returns a single column
+      operationId: get_column_by_id
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Column'
+        404:
+          description: The requested column does not exist
+          content: {}
+    put:
+      tags:
+      - column
+      summary: Update specific column by id
+      description: Update a single column
+      operationId: replace_column_by_id
+      requestBody:
+        description: The updated column properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Column'
+        required: true
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested column does not exist
+          content: {}
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+  /composition/columns/by-id/{column-id}/{parameter}/reset:
+    parameters:
+    - name: column-id
+      in: path
+      description: The unique id of the column to reset parameter on
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - column
+      summary: Reset a parameter in a column to its default value.
+      description: This resets a parameter on the indexed column to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_column_param_by_id
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given column or parameter does not exist
+          content: {}
+  /composition/columns/by-id/{column-id}/connect:
+    parameters:
+    - name: column-id
+      in: path
+      description: The unique identifier for the column to connect
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - column
+      summary: Connect the column by id
+      description: Connect the column, possibly activating it
+      operationId: column_connect_by_id
+      requestBody:
+        description: Whether to connect the column. This is analogous to whether the mouse is
+          pressed down on the column. If omitted, true and false are both send - as if a short
+          click was generated
+        content:
+          application/json:
+            schema:
+              type: boolean
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested column does not exist
+          content: {}
+  /composition/layers/{layer-index}:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to use (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - layer
+      summary: Retrieve layer properties and clip info by index
+      description: Returns a single layer and all of its clips
+      operationId: get_layer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+        404:
+          description: The requested layer does not exist
+          content: {}
+    put:
+      tags:
+      - layer
+      summary: Update specified layer and/or clips by index
+      description: Updates a single layer and all of its clips
+      operationId: replace_layer
+      requestBody:
+        description: The updated layer and/or clip properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Layer'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested layer does not exist
+          content: {}
+  /composition/layers/selected:
+    get:
+      tags:
+      - layer
+      summary: Retrieve layer properties and clip info for the selected layers
+      description: Returns a single layer and all of its clips
+      operationId: list_selected_layer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+        404:
+          description: No selected layer was found
+          content: {}
+    put:
+      tags:
+      - layer
+      summary: Update selected layer and/or clips
+      description: Updates a single layer and all of its clips
+      operationId: replace_selected_layer
+      requestBody:
+        description: The updated layer and/or clip properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Layer'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: No selected layer was found
+          content: {}
+  /composition/layers/{layer-index}/{parameter}/reset:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to reset param on (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - layer
+      summary: Reset a parameter in a layer to its default value.
+      description: This resets a parameter on the indexed layer to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_layer_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given layer or parameter does not exist
+          content: {}
+  /composition/layers/selected/{parameter}/reset:
+    parameters:
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - layer
+      summary: Reset a parameter in the selected layer to its default value.
+      description: This resets a parameter on the selected layer to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_selected_layer_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: No selected layer found or parameter does not exist
+          content: {}
+  /composition/layers/{layer-index}/select:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to select (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layer
+      summary: Select the layer by index
+      description: Select the layer at the given index
+      operationId: layer_select
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer does not exist
+          content: {}
+  /composition/layers/{layer-index}/clear:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to clear (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layer
+      summary: Disconnects any playing clips in the layer by index
+      description: Disconnects any playing clips in the layer by index
+      operationId: layer_clear
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer does not exist
+          content: {}
+  /composition/layers/selected/clear:
+    post:
+      tags:
+      - layer
+      summary: Disconnects any playing clips in the selected layer
+      description: Disconnects any playing clips in the selected layer
+      operationId: selected_layer_clear
+      responses:
+        204:
+          description: OK
+        404:
+          description: Selected layer not found
+          content: {}
+  /composition/layers/{layer-index}/clearclips:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to clear clips from (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layer
+      summary: Clears all clips in the layer by index
+      description: Clears all clips in the layer by index, removing all tracks and settings from the clips
+      operationId: layer_clear_clips
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer does not exist
+          content: {}          
+  /composition/layers/selected/clearclips:
+    post:
+      tags:
+      - layer
+      summary: Clears all clips in the selected layer
+      description: Clears all clips in the selected layer, removing all tracks and settings from the clips
+      operationId: selected_layer_clear_clips
+      responses:
+        204:
+          description: OK
+        404:
+          description: Selected layer not found
+          content: {}          
+  /composition/layers/by-id/{layer-id}:
+    parameters:
+    - name: layer-id
+      in: path
+      description: The unique layer id to use
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - layer
+      summary: Retrieve layer properties and clip info by id
+      description: Returns a single layer and all of its clips
+      operationId: get_layer_by_id
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+        404:
+          description: The requested layer does not exist
+          content: {}
+    put:
+      tags:
+      - layer
+      summary: Update specified layer and/or clips by id
+      description: Updates a single layer and all of its clips
+      operationId: replace_layer_by_id
+      requestBody:
+        description: The updated layer and/or clip properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Layer'
+        required: true
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer does not exist
+          content: {}
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+  /composition/layers/by-id/{layer-id}/{parameter}/reset:
+    parameters:
+    - name: layer-id
+      in: path
+      description: The unique layer id to reset param on (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - layer
+      summary: Reset a parameter in a layer to its default value.
+      description: This resets a parameter on the indexed layer to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_layer_param_by_id
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given layer or parameter does not exist
+          content: {}
+  /composition/layers/by-id/{layer-id}/select:
+    parameters:
+    - name: layer-id
+      in: path
+      description: The unique layer id to update
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layer
+      summary: Select the layer by id
+      description: Select the layer with the given id
+      operationId: layer_select_by_id
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer does not exist
+          content: {}
+  /composition/layers/by-id/{layer-id}/clear:
+    parameters:
+    - name: layer-id
+      in: path
+      description: The unique layer id to clear
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layer
+      summary: Disconnects any playing clips in the layer by id
+      description: Disconnects any playing clips in the layer by id
+      operationId: layer_clear_by_id
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer does not exist
+          content: {}
+  /composition/layers/by-id/{layer-id}/clearclips:
+    parameters:
+    - name: layer-id
+      in: path
+      description: The unique layer id to clear clips from
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layer
+      summary: Clears all clips in the layer by id
+      description: Clears all clips in the layer by id, removing all tracks and settings from the clips
+      operationId: layer_clear_clips_by_id
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer does not exist
+          content: {}
+  /composition/layergroups/{layergroup-index}:
+    parameters:
+    - name: layergroup-index
+      in: path
+      description: Layer group index to use (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - layergroup
+      summary: Retrieve layer group properties and layer info by index
+      description: Returns a single layer group and all of its layers
+      operationId: get_layergroup
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerGroup'
+        404:
+          description: The requested layer group does not exist
+          content: {}
+    put:
+      tags:
+      - layergroup
+      summary: Update specified layer group and/or layers by index
+      description: Updates a single layer group and all of its layers
+      operationId: replace_layergroup
+      requestBody:
+        description: The updated layer group and/or layer properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayerGroup'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested layer group does not exist
+          content: {}
+  /composition/layergroups/selected:
+    get:
+      tags:
+      - layergroup
+      summary: Retrieve selected layer group properties and layer info
+      description: Returns a single layer group and all of its layers
+      operationId: list_selected_layergroup
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerGroup'
+        404:
+          description: No selected layer group was found
+          content: {}
+    put:
+      tags:
+      - layergroup
+      summary: Update selected layer group and/or layers
+      description: Updates a single layer group and all of its layers
+      operationId: replace_selected_layergroup
+      requestBody:
+        description: The updated layer group and/or layer properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayerGroup'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: No selected layer group was found
+          content: {}
+  /composition/layergroups/{layergroup-index}/{parameter}/reset:
+    parameters:
+    - name: layergroup-index
+      in: path
+      description: Layer group index to reset param on (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - layergroup
+      summary: Reset a parameter in a layer group to its default value.
+      description: This resets a parameter on the indexed layer group to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_layer_group_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given layer group or parameter does not exist
+          content: {}
+  /composition/layergroups/selected/{parameter}/reset:
+    parameters:
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - layergroup
+      summary: Reset a parameter in the selected layer group to its default value.
+      description: This resets a parameter on the selected layer group to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_selected_layer_group_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: No selected layer group found or parameter does not exist
+          content: {}
+  /composition/layergroupss/{layergroup-index}/select:
+    parameters:
+    - name: layergroup-index
+      in: path
+      description: Layer group index to select (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layergroup
+      summary: Select the layer group by index
+      description: Select the layer group at the given index
+      operationId: layergroup_select
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer group does not exist
+          content: {}
+  /composition/layergroups/by-id/{layergroup-id}:
+    parameters:
+    - name: layergroup-id
+      in: path
+      description: The unique layer group id to use
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - layergroup
+      summary: Retrieve layer group properties and layer info by id
+      description: Returns a single layer group and all of its layers
+      operationId: get_layergroup_by_id
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerGroup'
+        404:
+          description: The requested layer group does not exist
+          content: {}
+    put:
+      tags:
+      - layergroup
+      summary: Update specified layer and/or clips by id
+      description: Updates a single layer group and all of its layers
+      operationId: replace_layergroup_by_id
+      requestBody:
+        description: The updated layer group and/or layer properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayerGroup'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested layer group does not exist
+          content: {}
+  /composition/layergroups/by-id/{layergroup-id}/{parameter}/reset:
+    parameters:
+    - name: layergroup-id
+      in: path
+      description: The unique layer group id to reset param on (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - layergroup
+      summary: Reset a parameter in a layer group to its default value.
+      description: This resets a parameter on the indexed layer group to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_layer_group_param_by_id
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given layer group or parameter does not exist
+          content: {}
+  /composition/layergroups/by-id/{layergroup-id}/select:
+    parameters:
+    - name: layergroup-id
+      in: path
+      description: The unique layer group id to select
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - layergroup
+      summary: Select the layer group by id
+      description: Select the layer group with the given id
+      operationId: layergroup_select_by_id
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer group does not exist
+          content: {}
+  /composition/decks/{deck-index}:
+    parameters:
+    - name: deck-index
+      in: path
+      description: Deck index to use (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - deck 
+      summary: Retrieve deck properties by index
+      description: Returns a single deck
+      operationId: get_deck
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+        404:
+          description: The requested deck does not exist
+          content: {}
+    put:
+      tags:
+      - deck
+      summary: Update specific deck by index
+      description: Update a single deck
+      operationId: replace_deck
+      requestBody:
+        description: The updated deck properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deck'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested deck does not exist
+          content: {}
+  /composition/decks/{deck-index}/{parameter}/reset:
+    parameters:
+    - name: deck-index
+      in: path
+      description: Deck index to reset param on (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - deck
+      summary: Reset a parameter in a deck to its default value.
+      description: This resets a parameter on the indexed deck to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_deck_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given deck or parameter does not exist
+          content: {}
+  /composition/decks/{deck-index}/select:
+    parameters:
+    - name: deck-index
+      in: path
+      description: Deck index to select (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - deck
+      summary: Select the deck by index
+      description: Select the deck at the given index
+      operationId: deck_select
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested deck does not exist
+          content: {}
+  /composition/decks/by-id/{deck-id}:
+    parameters:
+    - name: deck-id
+      in: path
+      description: The unique deck id
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - deck 
+      summary: Retrieve deck properties by id
+      description: Returns a single deck
+      operationId: get_deck_by_id
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+        404:
+          description: The requested deck does not exist
+          content: {}
+    put:
+      tags:
+      - deck
+      summary: Update specific deck by id
+      description: Update a single deck
+      operationId: replace_deck_by_id
+      requestBody:
+        description: The updated deck properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deck'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested deck does not exist
+          content: {}
+  /composition/decks/by-id/{deck-id}/{parameter}/reset:
+    parameters:
+    - name: deck-id
+      in: path
+      description: The unique deck id to reset param on (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - deck
+      summary: Reset a parameter in a deck to its default value.
+      description: This resets a parameter on the indexed deck to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_deck_param_by_id
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given deck or parameter does not exist
+          content: {}
+  /composition/decks/by-id/{deck-id}/select:
+    parameters:
+    - name: deck-id
+      in: path
+      description: The unique deck id to select
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - deck
+      summary: Select the deck by id
+      description: Select the deck with the given id
+      operationId: deck_select_by_id
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested deck does not exist
+          content: {}
+  /composition/layers/{layer-index}/clips/{clip-index}:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve a clip by its position in the clip grid
+      description: Retrieve all clip information and associated effects
+      operationId: get_clip_by_position
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Clip'
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+    put:
+      tags:
+      - clip
+      summary: Update clip and/or its effects by position in the clip grid
+      description: Update a single clip and its effects
+      operationId: replace_clip_by_position
+      requestBody:
+        description: The updated clip and/or effect properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Clip'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+  /composition/clips/selected:
+    get:
+      tags:
+      - clip
+      summary: Retrieve the selected clip
+      description: Retrieve all clip information and associated effects
+      operationId: list_selected_clip
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Clip'
+        404:
+          description: No selected clip was found
+          content: {}
+    put:
+      tags:
+      - clip
+      summary: Update selected clip and/or its effects
+      description: Update a single clip and its effects
+      operationId: replace_selected_clip
+      requestBody:
+        description: The updated clip and/or effect properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Clip'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: No selected clip was found
+          content: {}
+  /composition/layers/{layer-index}/clips/{clip-index}/{parameter}/reset:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - clip
+      summary: Reset a parameter in a clip to its default value.
+      description: This resets a parameter on the indexed clip to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_clip_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given layer, clip or parameter does not exist
+          content: {}
+  /composition/clips/selected/{parameter}/reset:
+    parameters:
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - clip
+      summary: Reset a parameter in the selected clip to its default value.
+      description: This resets a parameter on the selected clip to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_selected_clip_param
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: No selected clip was found, or parameter does not exist
+          content: {}
+  /composition/layers/{layer-index}/clips/{clip-index}/select:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Select the clip by its position in the clip grid
+      description: Select the clip
+      operationId: clip_select
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+  /composition/layers/{layer-index}/clips/{clip-index}/connect:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Connect the clip by its position in the clip grid
+      description: Connect the clip, possibly activating it
+      operationId: clip_connect
+      requestBody:
+        description: Whether to connect the clip. This is analogous to whether the mouse is
+          pressed down on the clip. If omitted, true and false are both send - as if a short
+          click was generated
+        content:
+          application/json:
+            schema:
+              type: boolean
+      x-codegen-request-body-name: connect-clip
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+  /composition/clips/selected/connect:
+    post:
+      tags:
+      - clip
+      summary: Connect the selected clip
+      description: Connect the clip, possibly activating it
+      operationId: selected_clip_connect
+      requestBody:
+        description: Whether to connect the clip. This is analogous to whether the mouse is
+          pressed down on the clip. If omitted, true and false are both send - as if a short
+          click was generated
+        content:
+          application/json:
+            schema:
+              type: boolean
+      x-codegen-request-body-name: connect-clip
+      responses:
+        204:
+          description: OK
+        404:
+          description: No selected clip found
+          content: {}
+  /composition/layers/{layer-index}/clips/{clip-index}/open:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Loads a file or opens a source into a clip by its position in the clip grid
+      description: Loads a file or opens a source into a clip, will retain settings as much as possible
+      operationId: clip_open
+      requestBody:
+        description: |
+          The path to the file, in URL format, or a source URL. Special characters are to be encoded using URL-encoding.
+          As an example, to open a file with path `/Users/Resolume/file 1.mov` you'd use an URL like `file:///Users/Resolume/file%201.mov`.
+          On Windows id'd be something like `file:///C:/Users/Resolume/file%201.mov`. Note that three forward slashes are needed after the
+          `file:` part, even on Windows. Opening a source uses the following format: `source:///video/<source name>`, an optional
+          preset name can be added, `source:///video/<source name>/<preset id>`
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              mac-open-file:
+                value: "file:///Users/Resolume/file%201.mov"
+              windows-open-file:
+                value: "file:///C:/Users/Resolume/file%201.mov"
+              open-video-source:
+                value: "source:///video/Checkered"
+              open-video-source-preset:
+                value: "source:///video/Checkered/12345"
+      x-codegen-request-body-name: clip-open-url
+      responses:
+        204:
+          description: OK
+        400:
+          description: The given clip URL is invalid
+          content: {}
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+        412:
+          description: A precondition failed, the clip cannot be loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: the clip cannot be changed currently
+  /composition/layers/{layer-index}/clips/{clip-index}/openfile:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Loads file into clip by its position in the clip grid
+      description: Loads file into clip, will retain settings as much as possible
+      deprecated: true
+      operationId: clip_openfile
+      requestBody:
+        description: |
+          The path to the file, in URL format. Right now only the `file` protocol is supported. Special characters
+          are to be encoded using URL-encoding. As an example, to open a file with path `/Users/Resolume/file 1.mov`
+          you'd use an URL like `file:///Users/Resolume/file%201.mov`. On Windows id'd be something like
+          `file:///C:/Users/Resolume/file%201.mov`. Note that three forward slashes are needed after the `file:` part,
+          even on Windows.
+        content:
+          text/plain:
+            schema:
+              type: string
+      x-codegen-request-body-name: clip-file-url
+      responses:
+        204:
+          description: OK
+        400:
+          description: The given clip URL is invalid
+          content: {}
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+        412:
+          description: A precondition failed, the clip cannot be loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: the clip cannot be changed currently
+  /composition/clips/selected/open:
+    post:
+      tags:
+      - clip
+      summary: Loads a file or opens a source into the selected clip
+      description: Loads a file or opens a source into a clip, will retain settings as much as possible
+      operationId: selected_clip_open
+      requestBody:
+        description: |
+          The path to the file, in URL format, or a source URL. Special characters are to be encoded using URL-encoding.
+          As an example, to open a file with path `/Users/Resolume/file 1.mov` you'd use an URL like `file:///Users/Resolume/file%201.mov`.
+          On Windows id'd be something like `file:///C:/Users/Resolume/file%201.mov`. Note that three forward slashes are needed after the
+          `file:` part, even on Windows. Opening a source uses the following format: `source:///video/<source name>`, an optional
+          preset name can be added, `source:///video/<source name>/<preset id>`
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              mac-open-file:
+                value: "file:///Users/Resolume/file%201.mov"
+              windows-open-file:
+                value: "file:///C:/Users/Resolume/file%201.mov"
+              open-video-source:
+                value: "source:///video/Checkered"
+              open-video-source-preset:
+                value: "source:///video/Checkered/12345"
+      x-codegen-request-body-name: clip-open-url
+      responses:
+        204:
+          description: OK
+        400:
+          description: The given clip URL is invalid
+          content: {}
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+        412:
+          description: A precondition failed, the clip cannot be loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: the clip cannot be changed currently
+  /composition/clips/selected/openfile:
+    post:
+      tags:
+      - clip
+      summary: Loads file into the selected clip
+      description: Loads file into clip, will retain settings as much as possible
+      deprecated: true
+      operationId: selected_clip_openfile
+      requestBody:
+        description: |
+          The path to the file, in URL format. Right now only the `file` protocol is supported. Special characters
+          are to be encoded using URL-encoding. As an example, to open a file with path `/Users/Resolume/file 1.mov`
+          you'd use an URL like `file:///Users/Resolume/file%201.mov`. On Windows id'd be something like
+          `file:///C:/Users/Resolume/file%201.mov`. Note that three forward slashes are needed after the `file:` part,
+          even on Windows.
+        content:
+          text/plain:
+            schema:
+              type: string
+      x-codegen-request-body-name: clip-file-url
+      responses:
+        204:
+          description: OK
+        400:
+          description: The given clip URL is invalid
+          content: {}
+        404:
+          description: No selected clip found
+          content: {}
+        412:
+          description: A precondition failed, the clip cannot be loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: the clip cannot be changed currently
+  /composition/layers/{layer-index}/clips/{clip-index}/clear:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Clears the clip by its position in the clip grid
+      description: Clears the clip, removing all tracks and settings
+      operationId: clip_clear
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+  /composition/clips/selected/clear:
+    post:
+      tags:
+      - clip
+      summary: Clears the selected clip
+      description: Clears the clip, removing all tracks and settings
+      operationId: selected_clip_clear
+      responses:
+        204:
+          description: OK
+        404:
+          description: No selected clip found
+          content: {}
+  /composition/clips/by-id/{clip-id}:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique identifier for the clip to use
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve a clip by id
+      description: Retrieve all clip information and associated effects
+      operationId: get_clip_by_id
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Clip'
+        404:
+          description: The requested clip does not exist
+          content: {}
+    put:
+      tags:
+      - clip
+      summary: Update clip and/or its effects by id
+      description: Update a single clip and its effects
+      operationId: replace_clip_by_id
+      requestBody:
+        description: The updated clip and/or effect properties
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Clip'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested clip does not exist
+          content: {}
+  /composition/clips/{clip-id}/{parameter}/reset:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique identifier for the clip to reset parameter in
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: parameter
+      in: path
+      description: Name of the parameter to reset
+      required: true
+      schema:
+        type: string
+    post:
+      tags:
+      - clip
+      summary: Reset a parameter in a clip to its default value.
+      description: This resets a parameter on the indexed clip to default. If a JSON body
+        is given and 'resetanimation' is set to true, animations are also reset.
+      operationId: reset_clip_param_by_id
+      requestBody:
+        description: Parameter reset options, whether to also reset animations
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetParameter'
+        required: false
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The given clip or parameter does not exist
+          content: {}
+  /composition/clips/by-id/{clip-id}/select:
+    parameters:
+    - name: clip-id
+      in: path
+      description: Unique id of the clip to select
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Select the clip by id
+      description: Select the clip
+      operationId: clip_select_by_id
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested clip does not exist
+          content: {}
+  /composition/clips/by-id/{clip-id}/connect:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique clip idenfier
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Connect the clip by id
+      description: Connect the clip, possibly activating it
+      operationId: clip_connect_by_id
+      requestBody:
+        description: Whether to connect the clip. This is analogous to whether the mouse is
+          pressed down on the clip. If omitted, true and false are both send - as if a short
+          click was generated
+        content:
+          application/json:
+            schema:
+              type: boolean
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested clip does not exist
+          content: {}
+  /composition/clips/by-id/{clip-id}/open:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique clip idenfier
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Loads a file or opens a source into the selected clip
+      description: Loads a file or opens a source into a clip, will retain settings as much as possible
+      operationId: clip_open_by_id
+      requestBody:
+        description: |
+          The path to the file, in URL format, or a source URL. Special characters are to be encoded using URL-encoding.
+          As an example, to open a file with path `/Users/Resolume/file 1.mov` you'd use an URL like `file:///Users/Resolume/file%201.mov`.
+          On Windows id'd be something like `file:///C:/Users/Resolume/file%201.mov`. Note that three forward slashes are needed after the
+          `file:` part, even on Windows. Opening a source uses the following format: `source:///video/<source name>`, an optional
+          preset name can be added, `source:///video/<source name>/<preset id>`
+        content:
+          text/plain:
+            schema:
+              type: string
+            examples:
+              mac-open-file:
+                value: "file:///Users/Resolume/file%201.mov"
+              windows-open-file:
+                value: "file:///C:/Users/Resolume/file%201.mov"
+              open-video-source:
+                value: "source:///video/Checkered"
+              open-video-source-preset:
+                value: "source:///video/Checkered/12345"
+      x-codegen-request-body-name: clip-open-url
+      responses:
+        204:
+          description: OK
+        400:
+          description: The given clip URL is invalid
+          content: {}
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+        412:
+          description: A precondition failed, the clip cannot be loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: the clip cannot be changed currently
+  /composition/clips/by-id/{clip-id}/openfile:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique clip idenfier
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Loads file into clip with the given unique identifier
+      description: Loads file into clip, will retain settings as much as possible
+      deprecated: true
+      operationId: clip_openfile_by_id
+      requestBody:
+        description: |
+          The path to the file, in URL format. Right now only the `file` protocol is supported. Special characters
+          are to be encoded using URL-encoding. As an example, to open a file with path `/Users/Resolume/file 1.mov`
+          you'd use an URL like `file:///Users/Resolume/file%201.mov`. On Windows id'd be something like
+          `file:///C:/Users/Resolume/file%201.mov`. Note that three forward slashes are needed after the `file:` part,
+          even on Windows.
+        content:
+          text/plain:
+            schema:
+              type: string
+      x-codegen-request-body-name: clip-file-url
+      responses:
+        204:
+          description: OK
+        400:
+          description: The given clip URL is invalid
+          content: {}
+        404:
+          description: The requested clip does not exist
+          content: {}
+        412:
+          description: A precondition failed, the clip cannot be loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: the clip cannot be changed currently
+  /composition/clips/by-id/{clip-id}/clear:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique clip idenfier
+      required: true
+      schema:
+        type: integer
+        format: int64
+    post:
+      tags:
+      - clip
+      summary: Clears the clip with the given unique id
+      description: Clears the clip, removing all tracks and settings
+      operationId: clip_clear_by_id
+      responses:
+        204:
+          description: OK
+        404:
+          description: The requested clip does not exist
+          content: {}
+  /composition/layers/{layer-index}/clips/{clip-index}/thumbnail:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve the latest thumbnail belonging to the specified clip
+      description: Finds the clip at the given position in the grid and retrieves the latest thumbnail
+      operationId: list_clip_thumbnail_by_position
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: The requested layer or clip does not exist
+          content: {}
+  /composition/clips/selected/thumbnail:
+    get:
+      tags:
+      - clip
+      summary: Retrieve the latest thumbnail belonging to the selected clip
+      description: Finds the selected clip and retrieves the latest thumbnail
+      operationId: list_selected_clip_thumbnail
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: No selected clip found
+          content: {}
+  /composition/layers/{layer-index}/clips/{clip-index}/thumbnail/{last-updated}:
+    parameters:
+    - name: layer-index
+      in: path
+      description: Layer index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: clip-index
+      in: path
+      description: Clip index to retrieve (1-based)
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: last-updated
+      in: path
+      description: Last updated timestamp for the clip thumbnail. If given, must match the timestamp of the current thumbnail.
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve the latest thumbnail belonging to the specified clip
+      description: Finds the clip at the given position in the grid and retrieves the thumbnail if the thumbnail was last updated at the given timestamp
+      operationId: get_clip_thumbnail_by_position_and_timestamp
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: The requested layer or clip does not exist, or the timestamp does not match last update
+          content: {}
+  /composition/clips/selected/thumbnail/{last-updated}:
+    parameters:
+    - name: last-updated
+      in: path
+      description: Last updated timestamp for the clip thumbnail. If given, must match the timestamp of the current thumbnail.
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve the latest thumbnail belonging to the selected clip
+      description: Finds the selected clip and retrieves the thumbnail if the thumbnail was last updated at the given timestamp
+      operationId: get_last_clip_thumbnail_by_timestamp
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: The requested layer or clip does not exist, or the timestamp does not match last update
+          content: {}
+  /composition/clips/by-id/{clip-id}/thumbnail:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique clip id to get the thumbnail for
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve the latest thumbnail belonging to the specified clip
+      description: Finds the clip with the given unique id and retrieves the latest thumbnail
+      operationId: list_clip_thumbnail_by_id
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: The requested clip does not exist or the timestamp does not match last update
+          content: {}
+  /composition/clips/by-id/{clip-id}/thumbnail/{last-updated}:
+    parameters:
+    - name: clip-id
+      in: path
+      description: The unique clip id to get the thumbnail for
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: last-updated
+      in: path
+      description: Last updated timestamp for the clip thumbnail. If given, must match the timestamp of the current thumbnail.
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve the latest thumbnail belonging to the specified clip
+      description: Finds the clip with the given unique id and retrieves the thumbnail if the thumbnail was last updated at the given timestamp
+      operationId: get_clip_thumbnail_by_id_and_timestamp
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: The requested clip does not exist or the timestamp does not match last update
+          content: {}
+  /composition/thumbnail/dummy:
+    get:
+      tags:
+      - clip
+      summary: Explicitly retrieve the dummy thumbnails used for clips without a thumbnail
+      description: This retrieves the dummy thumbnail that is also used for clips that do not yet have a thumbnail. This is a convenient
+                   endpoint for clips when you already know they will not have a clip attached. Clips without thumbnail will have their
+                   `last_update` property set to "0". This call always returns the exact same result and it may be cached indefinitely.
+      operationId: list_dummy_thumbnail
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+  /composition/effects/by-id/{effect-id}:
+    parameters:
+    - name: effect-id
+      in: path
+      description: The unique effect id to get the thumbnail for
+      required: true
+      schema:
+        type: integer
+        format: int64
+    get:
+      tags:
+      - clip
+      summary: Retrieve effect properties given their unique identifier
+      description: Finds the effect in any clip belonging to the composition
+      operationId: get_effect_by_id
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/AudioEffect'
+                  - $ref: '#/components/schemas/VideoEffect'
+        404:
+          description: The requested effect does not exist
+          content: {}
+    put:
+      tags:
+      - clip
+      summary: Update effect by id
+      description: Update a single effect
+      operationId: replace_effect_by_id
+      requestBody:
+        description: The updated effect properties
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/AudioEffect'
+                - $ref: '#/components/schemas/VideoEffect'
+        required: true
+      responses:
+        204:
+          description: OK
+        400:
+          description: The input JSON cannot be deserialized or contains incompatible data
+          content: {}
+        404:
+          description: The requested effect does not exist
+          content: {}
+components:
+  schemas:
+    ProductInfo:
+      description: Generic information about the product serving the api
+      type: object
+      properties:
+        name:
+          description: The product name. This is either 'Arena' or 'Avenue'
+          type: string
+          example: Arena
+        major:
+          description: The major version number of the Arena or Avenue instance handling the request.
+          type: integer
+          format: int64
+          example: 7
+        minor:
+          description: The minor version number of the Arena or Avenue instance handling the request.
+          type: integer
+          format: int64
+          example: 8
+        micro:
+          description: The micro version number of the Arena or Avenue instance handling the request.
+          type: integer
+          format: int64
+          example: 0
+        revision:
+          description: The revision of the Arena or Avenue instance handling the request.
+          type: integer
+          format: int64
+    Source:
+      description: A source to be used in a clip
+      type: object
+      properties:
+        idstring:
+          description: The unique identifier for the source
+          type: string
+          example: GeneratorVideoSource
+        name:
+          description: The desriptive name of the source
+          type: string
+          example: GeneratorSourceExtension
+        presets:
+          description: All the presets for this source
+          type: array
+          items:
+            type: string
+    Sources:
+      description: The available sources for clips
+      type: object
+      properties:
+        video:
+          description: The available video sources
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+    ResetParameter:
+      description: Options for resetting a parameter, should only the value be reset, or should animations also be reset
+      type: object
+      properties:
+        resetanimation:
+          description: If set to true, animations are also reset
+          type: boolean
+    ParameterView:
+      description: Semantic information on the parameter, contains hints about how best to display the parameter
+      type: object
+      readOnly: true
+      properties:
+        suffix:
+          description: The suffix to display for the variable. May be empty
+          type: string
+          example: '%'
+        step:
+          description: Value increments to be used for e.g. sliding or rotary controls
+          type: number
+          format: double
+          example: 1.0
+        multiplier:
+          description: Value to multiply with when displaying value. For a parameter with a value between 0 and 1 should display as 0 to 100
+          type: number
+          format: double
+          example: 1.0
+        display_units:
+          description: Which units to display.
+          type: string
+          enum: [real, integer, percent, degrees, decibels, frames_per_second, milliseconds, seconds, beats, fractions]
+        control_type:
+          description: Which control to show for the parameter
+          type: string
+          enum: [based_on_param, choice_buttons, choice_combobox, spinner, duration_spinner, slider, slider_color_red, slider_color_green, slider_color_blue, slider_color_hue, slider_color_saturation, slider_color_brightness, slider_color_alpha, slider_color_opacity, color_pallette, color_picker, rotary, text, text_multiline]
+    StringParameter:
+      description: A parameter containing string data
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1641335430527
+        valuetype:
+          description: The parameter type. This is "ParamString" for this type
+          type: string
+          example: ParamString
+        value:
+          description: The value for the parameter
+          type: string
+        view:
+          $ref: '#/components/schemas/ParameterView'
+    TextParameter:
+      description: A parameter containing string data, possibly multiline
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1638334400287
+        valuetype:
+          description: The parameter type. This is "ParamText" for this type
+          type: string
+          example: ParamText
+        value:
+          description: The value for the parameter
+          example: |
+            Some
+            Multiline
+            String
+        view:
+          $ref: '#/components/schemas/ParameterView'
+    BooleanParameter:
+      description: A parameter containing a true or false value
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1648023491239
+        valuetype:
+          description: The parameter type. This is "ParamBoolean" for this type
+          type: string
+          example: "ParamBoolean"
+        value:
+          description: The value for the parameter
+          type: boolean
+        view:
+          $ref: '#/components/schemas/ParameterView'
+    IntegerParameter:
+      description: A parameter containing numeric data
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1723491095783
+        valuetype:
+          description: The parameter type. This is "ParamNumber" for this type
+          type: string
+          example: ParamNumber
+        value:
+          description: The value for the parameter
+          type: integer
+          format: int64
+          example: 100
+        view:
+          $ref: '#/components/schemas/ParameterView'
+    ColorParameter:
+      description: A parameter containing color data
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1682459812085
+        valuetype:
+          description: The parameter type. This is "ParamColor" for this type
+          type: string
+          example: ParamColor
+        value:
+          description:
+            The color value. This always starts with a '#', followed by a number
+            of hexadecimal values representing rgb and - optionally - the alpha
+            channel. Each channel may be either represented by a single character -
+            in which case the values are from 0 to 15 - or by two characters -
+            allowing a range from 0 to 255 per channel.
+          type: string
+          example: "#ffffff"
+        palette:
+          description: Array of colors
+          type: array
+          items:
+            type: string
+          example: ["#ffffff", "#ff00ff", "#000"]
+        view:
+          $ref: '#/components/schemas/ParameterView'
+    RangeParameter:
+      description: A parameter containing a floating-point value with a minimum
+        and maximum allowed value.
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1824357891293
+        valuetype:
+          description: The parameter type. This is "ParamRange" for this type
+          type: string
+          example: ParamRange
+        min:
+          description: The lowest allowed value for the parameter, inclusive
+          type: number
+          format: double
+          example: 0.0
+        max:
+          description: The highest allowed value for the parameter, inclusive
+          type: number
+          format: double
+          example: 100.0
+        value:
+          description: The value for the parameter
+          type: number
+          format: double
+          example: 50.0
+        view:
+          $ref: '#/components/schemas/ParameterView'
+    ChoiceParameter:
+      description: A multiple-choice parameter
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1673448923421
+        valuetype:
+          description: The parameter type. This is "ParamChoice" or "ParamState" for this type
+          type: string
+          example: ParamChoice
+        value:
+          description: The value of the selected option
+          type: string
+          example: Option 1
+        index:
+          description: The index of the selected option within the options
+          type: integer
+          format: int32
+          example: 0
+        options:
+          description: The list of available options for the parameter
+          type: array
+          items:
+            type: string
+          example: ["Option 1", "Option 2", "Option 3"]
+        view:
+          $ref: '#/components/schemas/ParameterView'
+    EventParameter:
+      description: A parameter that handles events, but does not contain a value
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the parameter
+          type: integer
+          format: int64
+          example: 1865335878211
+          readOnly: true
+        valuetype:
+          description: The parameter type. This is "ParamEvent" for this type
+          type: string
+          example: ParamEvent
+          readOnly: true
+        view:
+          $ref: '#/components/schemas/ParameterView'          
+    ParameterCollection:
+      description: An unstructured collection of parameters. Parameters are presented as a map where
+        the key is the name of the parameter and the value is the parameter itself. Parameters may be
+        any valid parameter type.
+      type: object
+      additionalProperties:
+        oneOf:
+          - $ref: '#/components/schemas/StringParameter'
+          - $ref: '#/components/schemas/TextParameter'
+          - $ref: '#/components/schemas/BooleanParameter'
+          - $ref: '#/components/schemas/IntegerParameter'
+          - $ref: '#/components/schemas/ColorParameter'
+          - $ref: '#/components/schemas/RangeParameter'
+          - $ref: '#/components/schemas/ChoiceParameter'
+    VideoEffect:
+      description: A videoeffect represents a single effect in a chain of effects to be applied to
+        a source. Properties on the videoeffect control how and what is rendered in the effect.
+      type: object
+      properties:
+        id:
+          description: The unique id of the video effect instance
+          type: integer
+          format: int64
+          example: 1723069642348
+          readOnly: true
+        name:
+          description: The name of the effect
+          type: string
+          example: ChromaKey
+        bypassed:
+          allOf:
+            - $ref: '#/components/schemas/BooleanParameter'
+            - description: Bypassed param is not always available, primary Transform for example is not allowed to by bypassed
+            - nullable: true
+        mixer:
+          $ref: '#/components/schemas/ParameterCollection'
+        params:
+          $ref: '#/components/schemas/ParameterCollection'
+        effect:
+          $ref: '#/components/schemas/ParameterCollection'
+    AudioEffect:
+      description: An audioeffect represents a single effect in a chain of effects to be applied to
+        a source. Properties on the audioeffect control how and what is rendered in the effect.
+      type: object
+      properties:
+        id:
+          description: The unique id of the audio effect instance
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          description: The name of the effect
+          type: string
+          example: Distortion
+        bypassed:
+          $ref: '#/components/schemas/BooleanParameter'
+        params:
+          $ref: '#/components/schemas/ParameterCollection'
+    VideoTrack:
+      description: A video track, as part of a clip,layer,group or a composition
+      type: object
+      nullable: true
+      properties:
+        width:
+          description: The number of pixels the clip is wide
+          type: integer
+          format: int32
+          example: 1920
+          readOnly: true
+        height:
+          description: The number of pixels the clip is high
+          type: integer
+          format: int32
+          example: 1080
+          readOnly: true
+        opacity:
+          $ref: '#/components/schemas/RangeParameter'
+        mixer:
+          $ref: '#/components/schemas/ParameterCollection'
+        effects:
+          description: All the effects that may be applied when the video track is played
+          type: array
+          items: 
+            $ref: '#/components/schemas/VideoEffect'
+    VideoTrackLayer:
+        allOf:
+          - $ref: '#/components/schemas/VideoTrack'
+          - type: object
+            properties:
+              autosize:
+                $ref: '#/components/schemas/ChoiceParameter'
+    FrameRate:
+      description: Frame rate expressed as ratio
+      type: object
+      readOnly: true
+      properties:
+        num:
+          description: Numerator
+          type: integer
+          format: int32
+          example: 24000
+        denom:
+          description: Denominator
+          type: integer
+          format: int32
+          example: 1001
+    VideoFileInfo:
+      description: Meta information for a video file
+      type: object
+      readOnly: true
+      nullable: true
+      properties:
+        path:
+          description: The location of the file on disk
+          type: string
+          example: /Users/Resolume/Videos/Clip1.mov
+        exists:
+          description: Whether file is actually present on disk at the given location
+          type: boolean
+          example: true
+        duration:
+          description: Duration of file expressed as hours:seconds:minutes:milliseconds
+          type: string
+          example: 00:00:19.06
+        duration_ms:
+          description: Duration of file expressed as milliseconds
+          type: number
+          format: double
+          example: 19269.249999999996
+          readOnly: true
+        framerate:
+          $ref: '#/components/schemas/FrameRate'
+        width:
+          description: The number of pixels the video is wide
+          type: integer
+          format: int32
+          example: 1920
+        height:
+          description: The number of pixels the video is high
+          type: integer
+          format: int32
+          example: 1080
+    VideoTrackClip:
+        allOf:
+          - $ref: '#/components/schemas/VideoTrack'
+          - type: object
+            properties:
+              description:
+                description: The description of the source belonging to this video track
+                type: string
+                example: Clip1.mov\nDXV 3.0 Normal Quality, With Alpha, 1920x1080, 23.98 Fps\r\n00:00:19.269
+              fileinfo:
+                $ref: '#/components/schemas/VideoFileInfo'
+              resize:
+                $ref: '#/components/schemas/ChoiceParameter'
+              r:
+                $ref: '#/components/schemas/BooleanParameter'
+              g:
+                $ref: '#/components/schemas/BooleanParameter'
+              b:
+                $ref: '#/components/schemas/BooleanParameter'
+              a:
+                $ref: '#/components/schemas/BooleanParameter'
+              sourceparams:
+                allOf:
+                  - $ref: '#/components/schemas/ParameterCollection'
+                  - description: Additional params for source of the clip
+                  - nullable: true
+    AudioTrack:
+      description: An audio track, as part of a clip,layer,group or a composition
+      type: object
+      nullable: true
+      properties:
+        volume:
+          $ref: '#/components/schemas/RangeParameter'
+        pan:
+          $ref: '#/components/schemas/RangeParameter'
+        effects:
+          description: All the effects that may be applied when the audio track is played
+          type: array
+          items:
+            $ref: '#/components/schemas/AudioEffect'
+    AudioFileInfo:
+      description: Meta information for an audio file
+      type: object
+      readOnly: true      
+      nullable: true
+      properties:
+        path:
+          description: The location of the file on disk
+          type: string
+          example: /Users/Resolume/Music/Track1.wav
+        exists:
+          description: Whether file is actully present on disk at the given location
+          type: boolean
+          example: true
+        duration:
+          description: Duration of file expressed as hours:seconds:minutes:milliseconds
+          type: string
+          example: 00:12:08.085
+        duration_ms:
+          description: Duration of file expressed as milliseconds
+          type: number
+          format: double
+          example: 728084.8979591837
+        sample_rate:
+          description: Sample rate expressed in Hertz
+          type: number
+          format: double
+          example: 44100
+        num_channels:
+          description: Number of audio channels
+          type: integer
+          format: int32
+          example: 2
+        bpm:
+          description: Bpm rate expressed in beats
+          type: number
+          format: double
+          example: 0
+    AudioTrackClip:
+        allOf:
+          - $ref: '#/components/schemas/AudioTrack'
+          - type: object
+            properties:
+              description:
+                description: The description of the source belonging to this audio track
+                type: string
+              fileinfo:
+                $ref: '#/components/schemas/AudioFileInfo'
+    CrossFader:
+      description: Cross fade between two clips
+      type: object
+      nullable: false
+      properties:
+        id:
+          description: The unique identifier of the cross fader
+          type: integer
+          format: int64
+          example: 1
+          readOnly: true
+        phase:
+          $ref: '#/components/schemas/RangeParameter'
+        behaviour:
+          $ref: '#/components/schemas/ChoiceParameter'
+        curve:
+          $ref: '#/components/schemas/ChoiceParameter'
+        sidea:
+          $ref: '#/components/schemas/EventParameter'
+        sideb:
+          $ref: '#/components/schemas/EventParameter'
+        mixer:
+          $ref: '#/components/schemas/ParameterCollection'
+    AutoPilot:
+      description: AutoPilot options to control automatic clip transitions
+      type: object
+      nullable: true
+      properties:
+        target:
+          $ref: '#/components/schemas/ChoiceParameter'
+    Deck:
+      type: object
+      description: A deck contains a full set of layers and clips. Only the layers and clips of the
+        active deck can be retrieved and updated.
+      properties:
+        id:
+          description: The unique identifier of the deck
+          type: integer
+          format: int64
+          example: 1641549604727
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/StringParameter'
+        colorid:
+          $ref: '#/components/schemas/ChoiceParameter'
+        selected:
+          description: Get whether the deck is currently selected
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/BooleanParameter'
+        scrollx:
+          $ref: '#/components/schemas/IntegerParameter'
+    Column:
+      type: object
+      description: A column within a deck
+      properties:
+        id:
+          description: The unique identifier of the column
+          type: integer
+          format: int64
+          example: 1641549605447
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/StringParameter'
+        colorid:
+          $ref: '#/components/schemas/ChoiceParameter'
+        connected:
+          description: Get whether the column is currently connected
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/ChoiceParameter'
+    TransportTimeline:
+          description: The timeline transport controls
+          type: object
+          nullable: true
+          properties:
+            position:
+              $ref: '#/components/schemas/RangeParameter'
+            controls:
+              description: Timeline controls
+              type: object
+              nullable: false
+              properties:
+                playdirection:
+                  $ref: '#/components/schemas/ChoiceParameter'
+                playmode:
+                  $ref: '#/components/schemas/ChoiceParameter'
+                playmodeaway:
+                  $ref: '#/components/schemas/ChoiceParameter'
+                duration:
+                  $ref: '#/components/schemas/RangeParameter'
+                speed:
+                  $ref: '#/components/schemas/RangeParameter'
+    TransportBPMSync:
+          description: The timeline transport controls
+          type: object
+          nullable: true
+          properties:
+            position:
+              $ref: '#/components/schemas/RangeParameter'
+            controls:
+              description: BPM Sync controls
+              type: object
+              nullable: false
+              properties:
+                playdirection:
+                  $ref: '#/components/schemas/ChoiceParameter'
+                playmode:
+                  $ref: '#/components/schemas/ChoiceParameter'
+                playmodeaway:
+                  $ref: '#/components/schemas/ChoiceParameter'
+                duration:
+                  $ref: '#/components/schemas/RangeParameter'
+                speed:
+                  $ref: '#/components/schemas/RangeParameter'
+                bpm:
+                  $ref: '#/components/schemas/RangeParameter'
+                syncmode:
+                  $ref: '#/components/schemas/ChoiceParameter'
+                beatloop:
+                  $ref: '#/components/schemas/ChoiceParameter'
+    Clip:
+      type: object
+      description: A single clip in the composition, which may contain a video and/or audio track
+      properties:
+        id:
+          description: The unique id of the clip
+          type: integer
+          format: int64
+          example: 1641549604745
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/StringParameter'
+        colorid:
+          $ref: '#/components/schemas/ChoiceParameter'
+        selected:
+          description: Get whether the clip is currently selected. If a clip is selected the properties
+            will show up in Arena or Avenue and in the example react application.
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/BooleanParameter'
+        connected:
+          description: Get whether the clip is currently connected.
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/ChoiceParameter'
+        target:
+          $ref: '#/components/schemas/ChoiceParameter'
+        triggerstyle:
+          $ref: '#/components/schemas/ChoiceParameter'
+        ignorecolumntrigger:
+          $ref: '#/components/schemas/ChoiceParameter'
+        faderstart:
+          $ref: '#/components/schemas/ChoiceParameter'
+        beatsnap:
+          $ref: '#/components/schemas/ChoiceParameter'
+        transporttype:
+          $ref: '#/components/schemas/ChoiceParameter'
+        transport:
+          description: Only Timeline and BPM Sync transport types are supported at the moment
+          oneOf:
+            - $ref: '#/components/schemas/TransportTimeline'
+            - $ref: '#/components/schemas/TransportBPMSync'
+        dashboard:
+          $ref: '#/components/schemas/ParameterCollection'
+        audio:
+          $ref: '#/components/schemas/AudioTrackClip'
+        video:
+          $ref: '#/components/schemas/VideoTrackClip'
+        thumbnail:
+          description: The thumbnail properties contain information with the latest update to
+            the thumbnail, the size (in bytes) and whether it contains the 'default' thumbnail,
+            meaning it doesn't contain a video or audio track
+          type: object
+          readOnly: true
+          properties:
+            size:
+              description: The number of bytes of data in the thumbnail
+              type: integer
+              example: 1048576
+              format: int64
+            last_update:
+              description: The timestamp of the last update, in milliseconds. Given as a string
+                to prevent lesser languages from truncating the value
+              type: string
+              example: "0"
+            is_default:
+              description: Get whether this is a default thumbnail, shared between all clips that
+                don't have any video or audio tracks
+              type: boolean
+              example: true
+    LayerTransition:
+      description: A layer transition describes the transition between clips within the layer
+      type: object
+      properties:
+        duration:
+          $ref: '#/components/schemas/RangeParameter'
+        blend_mode:
+          $ref: '#/components/schemas/ChoiceParameter'
+    Layer:
+      description: A layer is a container for clips that has its own dashboard and can be selected
+      type: object
+      properties:
+        id:
+          description: The unique id for the layer
+          type: integer
+          format: int64
+          example: 1641549604807
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/StringParameter'
+        colorid:
+          $ref: '#/components/schemas/ChoiceParameter'
+        selected:
+          description: Get whether the layer is currently selected
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/BooleanParameter'
+        bypassed:
+          $ref: '#/components/schemas/BooleanParameter'
+        solo:
+          $ref: '#/components/schemas/BooleanParameter'
+        crossfadergroup:
+          $ref: '#/components/schemas/ChoiceParameter'
+        master:
+          $ref: '#/components/schemas/RangeParameter'
+        maskmode:
+          $ref: '#/components/schemas/ChoiceParameter'
+        ignorecolumntrigger:
+          $ref: '#/components/schemas/BooleanParameter'
+        faderstart:
+          $ref: '#/components/schemas/BooleanParameter'
+        dashboard:
+          $ref: '#/components/schemas/ParameterCollection'
+        audio:
+          $ref: '#/components/schemas/AudioTrack'
+        video:
+          $ref: '#/components/schemas/VideoTrackLayer'
+        transition:
+          $ref: '#/components/schemas/LayerTransition'
+        clips:
+          description: All clips belonging to this layer
+          type: array
+          items: 
+            $ref: '#/components/schemas/Clip'
+        autopilot:
+          $ref: '#/components/schemas/AutoPilot'
+    LayerGroup:
+      description: A collection of layers, allowing controlling of a group of layers as a single object
+      type: object
+      properties:
+        id:
+          description: The unique id for the layer group
+          type: integer
+          format: int64
+          example: 1641549604808
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/StringParameter'
+        colorid:
+          $ref: '#/components/schemas/ChoiceParameter'
+        selected:
+          description: Get whether the layer group is currently selected
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/BooleanParameter'
+        bypassed:
+          $ref: '#/components/schemas/BooleanParameter'
+        solo:
+          $ref: '#/components/schemas/BooleanParameter'
+        crossfadergroup:
+          $ref: '#/components/schemas/ChoiceParameter'
+        master:
+          $ref: '#/components/schemas/RangeParameter'
+        ignorecolumntrigger:
+          $ref: '#/components/schemas/BooleanParameter'          
+        dashboard:
+          $ref: '#/components/schemas/ParameterCollection'
+        audio:
+          $ref: '#/components/schemas/AudioTrack'
+        video:
+          $ref: '#/components/schemas/VideoTrack'
+        layers:
+          description: All the layers added to the layer group
+          type: array
+          items:
+            $ref: '#/components/schemas/Layer'
+    TempoController:
+      description: The controller for various tempo-related aspects of the composition
+      type: object
+      properties:
+        tempo:
+          $ref: '#/components/schemas/RangeParameter'
+        tempo_pull:
+          $ref: '#/components/schemas/EventParameter'
+        tempo_push:
+          $ref: '#/components/schemas/EventParameter'
+        tempo_tap:
+          $ref: '#/components/schemas/EventParameter'
+        resync:
+          $ref: '#/components/schemas/EventParameter'
+    Composition:
+      description: The complete composition, containing all the decks, layers, clips and their effects
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/StringParameter'
+        selected:
+          allOf:
+            - $ref: '#/components/schemas/BooleanParameter'
+            - readOnly: true
+        bypassed:
+          $ref: '#/components/schemas/BooleanParameter'
+        master:
+          $ref: '#/components/schemas/RangeParameter'
+        speed:
+          $ref: '#/components/schemas/RangeParameter'
+        cliptarget:
+          $ref: '#/components/schemas/ChoiceParameter'
+        cliptriggerstyle:
+          $ref: '#/components/schemas/ChoiceParameter'
+        clipbeatsnap:
+          $ref: '#/components/schemas/ChoiceParameter'
+        dashboard:
+          $ref: '#/components/schemas/ParameterCollection'
+        audio:
+          $ref: '#/components/schemas/AudioTrack'
+        video:
+          $ref: '#/components/schemas/VideoTrack'
+        crossfader:
+          $ref: '#/components/schemas/CrossFader'
+        decks:
+          description: All decks in the composition
+          type: array
+          items:
+            $ref: '#/components/schemas/Deck'
+        layers:
+          description: All layers in the composition
+          type: array
+          items:
+            $ref: '#/components/schemas/Layer'
+        columns:
+          description: All columns in the composition
+          type: array
+          items:
+            $ref: '#/components/schemas/Column'
+        layergroups:
+          description: All layergroups in the composition
+          type: array
+          items:
+            $ref: '#/components/schemas/LayerGroup'
+        tempo_controller:
+          $ref: '#/components/schemas/TempoController'
