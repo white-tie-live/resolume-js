@@ -32,7 +32,7 @@ Install dependencies
 
 1. Either [download](https://resolume.com/download), install & launch Arena or Avenue, or have it running on a host accessible over your network.
 
-2. Make sure the Webserver is enabled from Area > Settings > Webserver.
+2. Make sure the Webserver is enabled from Arena > Settings > Webserver.
 
 3. If needed, edit the host or port values in `index.ts`.
 
