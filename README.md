@@ -5,6 +5,19 @@ An SDK to connect your TypeScript application with the REST API of the [Resolume
 
 
 
+<<<<<<< HEAD
+=======
+
+## Badges
+
+Add badges from somewhere like: [shields.io](https://shields.io/)
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
+
+
+>>>>>>> main
 ## Overview
 
 Resolume Arena & Avenue is a live VJ & media server application for Mac and Windows. Versions 7.0 and up include an integrated REST API-compatible web server to allow for remote and automated control of the software while it is running.
