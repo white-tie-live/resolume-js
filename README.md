@@ -55,10 +55,10 @@ First, establish a connection to the Arena/Avenue webserver:
 
 ```tsx
 const hostValue = "127.0.0.1";
-const portValue = "8081";
+const portValue = 8080;
 const pathValue = "/path/to/local/files";
 
-const resolume: ResolumeAPI = new ResolumeAPI(hostValue, +portValue, pathValue);
+const resolume: ResolumeAPI = new ResolumeAPI(hostValue, portValue, pathValue);
 
 let composition: Composition;
 try {
