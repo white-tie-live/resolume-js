@@ -25,20 +25,6 @@ async function interactWithResolume() {
         console.log(`Couldn't add column: ${error}`);
     });
 
-    // Import a file into a specific clip
-    const path = "clip1.mov"
-    const layerIndex = 1;
-    const columnIndex = 1;
-
-    await resolume.openClipByIndex(
-        layerIndex,
-        columnIndex,
-        path,
-        "file"
-    ).catch((error) => {
-        console.log(`Couldn't open file at ${path}: ${error}`);
-    })
-
 }
 
 interactWithResolume().then(() => {
