@@ -1,4 +1,4 @@
-import {ResolumeAPI} from "./resolume";
+import {ResolumeAPI, WebSocketAPI} from "./resolume";
 import {components} from "./schema";
 
 type Composition = components["schemas"]["Composition"];
@@ -25,8 +25,13 @@ async function interactWithResolume() {
         console.log(`Couldn't add column: ${error}`);
     });
 
+    const resolumeWS = new WebSocketAPI(hostValue, portValue);
+    resolumeWS.addEventListener("composition", (data: Composition) => {
+        console.log("Composition is", data);
+    })
+
 }
 
 interactWithResolume().then(() => {
-    console.log("Done!");
+    console.log("done");
 })
