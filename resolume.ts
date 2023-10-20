@@ -1,4 +1,15 @@
 import {components} from "./schema";
+import WebSocket = require('isomorphic-ws');
+import {
+    Action,
+    ActionType,
+    Effect,
+    isCompositionMessage,
+    isEffectMessage,
+    isParameterMessage,
+    isSourcesMessage,
+    ParameterCallback
+} from "./ws";
 
 type APIResponse = components["schemas"]["ProductInfo"];
 type Deck = components["schemas"]["Deck"];
@@ -154,4 +165,97 @@ export class ResolumeAPI {
         }
     }
 
+}
+
+type CompositionCallback = (comp: Composition) => void
+
+export class WebSocketAPI {
+    ws: WebSocket;
+    events=  new Map<string | number, ParameterCallback[]>();
+    sources: components["schemas"]["Sources"];
+    effects: {
+        Video: Effect[],
+        Audio: Effect[],
+    }
+    compListeners = new Array<(data: Composition) => void>()
+
+    constructor(host: string, port: number, protocol?: "ws" | "wss") {
+        this.ws = new WebSocket(`${protocol ? protocol : "ws" }://${host}:${port}/api/v1`);
+        this.ws.onmessage = (event) => {
+            this.onMessage(event.data);
+        };
+    }
+
+    addEventListener(parameter: string | number | "composition", cb: ParameterCallback | CompositionCallback){
+        if (parameter === "composition") {
+            this.compListeners.push(cb as CompositionCallback);
+            return
+        }
+
+        const param = paramToString(parameter);
+        if (!this.events.has(param)) {
+            this.events.set(param, new Array<ParameterCallback>());
+        }
+        const id = Math.random().toString(36).substring(7);
+        this.subscribe(param);
+
+        this.events.get(param).push(cb as ParameterCallback);
+    }
+
+    removeEventListener(parameter: string | number, cb: ParameterCallback) {
+        const param = paramToString(parameter);
+        if (this.events.has(param)) {
+            const index = this.events.get(param).indexOf(cb);
+            if (index !== -1) {
+                this.events.get(param).splice(index, 1);
+            }
+            if (this.events.get(param).length === 0) {
+                this.unsubscribe(param);
+            }
+        }
+    }
+
+
+    private subscribe(parameter: string) {
+        this.send({
+            action: ActionType.Subscribe,
+            parameter: parameter
+        });
+    }
+
+    private unsubscribe(parameter: string) {
+        this.send({
+            action: ActionType.Unsubscribe,
+            parameter: parameter
+        });
+    }
+
+    send(action: Action) {
+        this.ws?.send(JSON.stringify(action))
+    }
+
+    private onMessage(data: any) {
+        const message = JSON.parse(data);
+        if (isParameterMessage(message)) {
+            const param = paramToString(message.id || message.path);
+            if (this.events.has(param)) {
+                this.events.get(param).forEach((cb) => {
+                    cb(message);
+                });
+            }
+        } else if (isSourcesMessage(message)) {
+            this.sources = message.value;
+            console.log(message.value);
+        } else if (isEffectMessage(message)) {
+            this.effects = message.value;
+        } else if (isCompositionMessage(message)) {
+            this.compListeners.forEach((cb) => {
+                cb(message);
+            });
+        }
+    }
+}
+
+function paramToString(param: string | number) {
+    return typeof param === 'string' ? param : `/parameter/by-id/${param}`;
 }
