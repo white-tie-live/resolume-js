@@ -66,11 +66,11 @@ export class ResolumeAPI {
         ).then((response) => response)
     }
 
-    async getDeck(deck: Deck): Promise<any> {
+    async getDeck(deck: Deck): Promise<Deck> {
         return await fetch(
             this.url() + `/composition/decks/by-id/${deck.id}`,
-            {method: 'GET', body: JSON.stringify(deck)}
-        ).then((response) => response)
+            {method: 'GET'}
+        ).then((response) => response.json())
     }
 
     async addColumn(): Promise<any> {
